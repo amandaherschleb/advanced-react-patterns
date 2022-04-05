@@ -7,6 +7,8 @@ import {Switch} from '../switch'
 // 📜 https://reactjs.org/docs/context.html#reactcreatecontext
 // allows you to pass access props inside other components via useToggle
 const ToggleContext = React.createContext()
+// add name for the dev tools
+ToggleContext.displayName = "Toggle Context"
 
 function Toggle({children}) {
   const [on, setOn] = React.useState(false)
@@ -22,7 +24,13 @@ function Toggle({children}) {
 // 📜 https://reactjs.org/docs/hooks-reference.html#usecontext
 // returns the props in value defined above
 function useToggle() {
-  return React.useContext(ToggleContext)
+  const context = React.useContext(ToggleContext)
+  
+  if (!context) {
+    throw new Error("useToggle must be used within a <Toggle />")
+  }
+
+  return context
 }
 
 function ToggleOn({children}) {
@@ -40,6 +48,8 @@ function ToggleButton(props) {
   return <Switch on={on} onClick={toggle} {...props} />
 }
 
+// Use to show what happens if you don't render ToggleButton inside a Toggle
+// const App = () => <ToggleButton />
 function App() {
   return (
     <div>
