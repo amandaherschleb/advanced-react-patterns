@@ -39,6 +39,22 @@ function useToggle({
   const onIsControlled = controlledOn != null
   const on = onIsControlled ? controlledOn : state.on
 
+  const {current: onWasControlled} = React.useRef(onIsControlled)
+  React.useEffect(() => {
+    const showWarning = !(onIsControlled && !onWasControlled)
+    warning(
+      showWarning,
+      `\`useToggle\` is changing from uncontrolled to be controlled. Components should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled \`useToggle\` for the lifetime of the component. Check the \`on\` prop.`
+    )
+
+    const showWarningReverse = !(!onIsControlled && onWasControlled)
+    warning(
+      showWarning,
+      `\`useToggle\` is changing from controlled to be uncontrolled. Components should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled \`useToggle\` for the lifetime of the component. Check the \`on\` prop.`
+    )
+
+  }, [onIsControlled, onWasControlled])
+
   const hasOnChange = Boolean(onChange)
   React.useEffect(() => {
     const showWarning = !(!hasOnChange && onIsControlled && !readOnly)
@@ -91,7 +107,7 @@ function Toggle({on: controlledOn, onChange, readOnly}) {
 }
 
 function App() {
-  const [bothOn, setBothOn] = React.useState(false)
+  const [bothOn, setBothOn] = React.useState() // initialize to empty insteady of false to trigger uncontrolled/controlled error
   const [timesClicked, setTimesClicked] = React.useState(0)
 
   function handleToggleChange(state, action) {
@@ -110,7 +126,7 @@ function App() {
   return (
     <div>
       <div>
-        {/* remove onChange and readOnly to check warning message here */}
+        {/* remove onChange to check warning message here */}
         <Toggle on={bothOn} />
         <Toggle on={bothOn} onChange={handleToggleChange} />
       </div>
